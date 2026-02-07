@@ -1,5 +1,4 @@
 const express = require("express");
-const { authenticate } = require("../config/authenticate");
 
 const {
   createComment,
@@ -7,13 +6,15 @@ const {
   getParticularComment,
   deleteComment,
 } = require("../controllers/commentController");
+const passport = require("passport");
 
 const router = express.Router();
+const auth = passport.authenticate("jwt", { session: false });
 
-router.post("/:id", authenticate, createComment);
-router.get("/allComment/:id", authenticate, getComment);
-router.get("/:id", authenticate, getParticularComment);
+router.post("/:id", auth, createComment);
+router.get("/allComment/:id", auth, getComment);
+router.get("/:id", auth, getParticularComment);
 
-router.delete("/delete/:id", authenticate, deleteComment);
+router.delete("/delete/:id", auth, deleteComment);
 
 module.exports = router;

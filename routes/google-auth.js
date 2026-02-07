@@ -10,6 +10,7 @@ const {
   CLIENT_URL,
   BASE_URL,
 } = require("../config/serverConfig");
+const { generateAccessToken, generateRefreshToken } = require("../config/authToken");
 
 let userProfile;
 passport.use(
@@ -38,6 +39,7 @@ router.get(
   "/callback",
   passport.authenticate("google", {
     failureRedirect: "/api/auth/google/error",
+    session: false,
   }),
   (req, res) => {
     res.redirect("/api/auth/google/success"); // Successful authentication, redirect success.
@@ -45,15 +47,42 @@ router.get(
 );
 router.get("/success", async (req, res) => {
   const user = await googleAuth.registerWithGoogle(userProfile);
-  const { password, ...others } = user._doc;
-  const token = user.genJWT();
-  res.redirect(`${CLIENT_URL}?token=${token}&data=${JSON.stringify(others)}`);
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  res.cookie("access_token", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    maxAge: 15 * 60 * 1000,
+    //domain: ".vercel.app", // remove if not using subdomain
+  });
+
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    //domain: ".vercel.app",
+  });
+
+  // CSRF token (readable by frontend)
+  res.cookie("csrf_token", crypto.randomUUID(), {
+    secure: true,
+    sameSite: "None",
+    domain: ".vercel.app",
+  });
+
+  res.redirect(CLIENT_URL);
 });
 
 router.get("/error", (req, res) => res.send("Error logging in via Google.."));
 
-router.get("/logout", (req, res) => {
-  req.logout();
+router.get("/logout", async (req, res) => {
+  // req.logout();
+  res.clearCookie("access_token");
+  res.clearCookie("refresh_token");
+  res.clearCookie("csrf_token");
   res.redirect(BASE_URL);
 });
 

@@ -1,7 +1,16 @@
 const jwt = require("jsonwebtoken");
-const { JWT_KEY } = require("./serverConfig");
-const generateToken = (id) => {
-  return jwt.sign({ id }, JWT_KEY, { expiresIn: "10d" });
+
+const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = require("./serverConfig");
+
+const generateAccessToken = (user) => {
+  return jwt.sign({ id: user._id, email: user.email }, ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
 };
 
-module.exports = generateToken;
+const generateRefreshToken = (user) =>
+  jwt.sign(
+    { id: user._id },
+    REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+
+module.exports = { generateAccessToken, generateRefreshToken };

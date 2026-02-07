@@ -1,9 +1,12 @@
 const express = require("express");
-const { authenticate } = require("../config/authenticate");
 const { like } = require("../controllers/likecontroller");
+const passport = require("passport");
 // const { setNotifications, getNotifications } = require('../controllers/notifyController');
 const router = express.Router();
 
-router.post("/:id", authenticate, like);
+const auth = passport.authenticate("jwt", { session: false });
+
+
+router.post("/:id", auth, like);
 
 module.exports = router;

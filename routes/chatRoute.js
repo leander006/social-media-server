@@ -1,5 +1,4 @@
 const express = require("express");
-const { authenticate } = require("../config/authenticate");
 const {
   accessChat,
   fetchChat,
@@ -9,15 +8,17 @@ const {
   removeMember,
   deleteChat,
 } = require("../controllers/chatController");
+const passport = require("passport");
 // const { setNotifications, getNotifications } = require('../controllers/notifyController');
 const router = express.Router();
+const auth = passport.authenticate("jwt", { session: false });
 
-router.post("/:id", authenticate, accessChat);
-router.get("/", authenticate, fetchChat);
-router.post("/", authenticate, createGroupChat);
-router.put("/rename/:id", authenticate, renameGroup);
-router.put("/add/:id", authenticate, addMember);
-router.put("/remove/:id", authenticate, removeMember);
-router.delete("/delete/:id", authenticate, deleteChat);
+router.post("/:id", auth, accessChat);
+router.get("/", auth, fetchChat);
+router.post("/", auth, createGroupChat);
+router.put("/rename/:id", auth, renameGroup);
+router.put("/add/:id", auth, addMember);
+router.put("/remove/:id", auth, removeMember);
+router.delete("/delete/:id", auth, deleteChat);
 
 module.exports = router;

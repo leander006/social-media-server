@@ -10,10 +10,11 @@ const commentRoute = require("./routes/commentRoute");
 const googleRoute = require("./routes/google-auth");
 const notifcationRoute = require("./routes/notificationRoute");
 const likeRoute = require("./routes/likeRoute");
-const { passportAuth } = require("./config/jwt");
+const { passportAuth } = require("./middleware/passportAuth");
 const { createServer } = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
+const cookieParser = require("cookie-parser");
 const {
   MONGO_URI,
   URL,
@@ -56,8 +57,8 @@ app.use(
   })
 );
 
+app.use(cookieParser());
 app.use(passport.initialize());
-app.use(passport.session());
 passportAuth(passport);
 
 passport.serializeUser(function (user, cb) {

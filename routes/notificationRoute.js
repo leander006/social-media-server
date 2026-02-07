@@ -1,5 +1,4 @@
 const express = require("express");
-const { authenticate } = require("../config/authenticate");
 
 const {
   setNotifications,
@@ -8,11 +7,13 @@ const {
   getNotificationsById,
   getByMessageId,
 } = require("../controllers/notifyController");
+const passport = require("passport");
 const router = express.Router();
+const auth = passport.authenticate("jwt", { session: false });
 
-router.post("/:id", authenticate, setNotifications);
-router.get("/", authenticate, getNotifications);
+router.post("/:id", auth, setNotifications);
+router.get("/", auth, getNotifications);
 router.get("/:id", getNotificationsById);
-router.delete("/:id", authenticate, removeNotifications);
+router.delete("/:id", auth, removeNotifications);
 
 module.exports = router;

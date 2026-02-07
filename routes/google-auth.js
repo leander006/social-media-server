@@ -65,7 +65,7 @@ router.get("/success", asyncHandler(async (req, res) => {
     secure: true,
     sameSite: "None",
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    domain: ".vercel.app",
+    //domain: ".vercel.app",
   });
 
   // CSRF token (readable by frontend)

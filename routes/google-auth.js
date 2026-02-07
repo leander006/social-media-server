@@ -29,8 +29,6 @@ passport.use(
   )
 );
 
-// request at /auth/google, when user click sign-up with google button transferring
-// the request to google server, to show emails screen
 router.get(
   "/",
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -75,7 +73,7 @@ router.get("/success", asyncHandler(async (req, res) => {
   res.redirect(CLIENT_URL);
 }));
 
-router.get("/error", (req, res) => res.send("Error logging in via Google.."));
+router.get("/error", (req, res) => res.redirect(BASE_URL));
 
 router.get("/logout", async (req, res) => {
   // req.logout();

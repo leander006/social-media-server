@@ -3,6 +3,7 @@ const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
 const express = require("express");
 const googleAuth = require("../controllers/google-authController");
 const router = express.Router();
+const asyncHandler = require("express-async-handler");
 const {
   GOOGLE_CALLBACK_URL,
   GOOGLE_CLIENT_SECRET,
@@ -45,7 +46,7 @@ router.get(
     res.redirect("/api/auth/google/success"); // Successful authentication, redirect success.
   }
 );
-router.get("/success", async (req, res) => {
+router.get("/success", asyncHandler(async (req, res) => {
   const user = await googleAuth.registerWithGoogle(userProfile);
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
@@ -55,7 +56,7 @@ router.get("/success", async (req, res) => {
     secure: true,
     sameSite: "None",
     maxAge: 15 * 60 * 1000,
-    //domain: ".vercel.app", // remove if not using subdomain
+    domain: ".vercel.app", // remove if not using subdomain
   });
 
   res.cookie("refresh_token", refreshToken, {
@@ -63,7 +64,7 @@ router.get("/success", async (req, res) => {
     secure: true,
     sameSite: "None",
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    //domain: ".vercel.app",
+    domain: ".vercel.app",
   });
 
   // CSRF token (readable by frontend)
@@ -74,7 +75,7 @@ router.get("/success", async (req, res) => {
   });
 
   res.redirect(CLIENT_URL);
-});
+}));
 
 router.get("/error", (req, res) => res.send("Error logging in via Google.."));
 

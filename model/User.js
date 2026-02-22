@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
 
-const { JWT_KEY } = require("../config/serverConfig");
+const { ACCESS_TOKEN_SECRET } = require("../config/serverConfig");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -96,7 +96,7 @@ const UserSchema = new mongoose.Schema(
 // };
 
 UserSchema.methods.genJWT = function generate() {
-  return JWT.sign({ id: this._id, email: this.email }, JWT_KEY, {
+  return JWT.sign({ id: this._id, email: this.email }, ACCESS_TOKEN_SECRET, {
     expiresIn: "1h",
   });
 };

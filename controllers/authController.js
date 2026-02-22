@@ -5,6 +5,7 @@ const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
 const Token = require("../model/Token");
 const { BASE_URL, SESSION } = require("../config/serverConfig");
+const { generateAccessToken, generateRefreshToken } = require("../config/authToken");
 
 // register //
 
@@ -59,6 +60,7 @@ const registration = asyncHandler(async (req, res) => {
 
 const login = asyncHandler(async (req, res) => {
   const { username } = req.body;
+  console.log("username ", username);
   try {
     if (!username || !req.body.password) {
       return res.status(402).send({ message: "Please all field" });
@@ -69,6 +71,7 @@ const login = asyncHandler(async (req, res) => {
       return res.status(400).send({ message: "User does not exits!" });
     }
     const validate = bcrypt.compareSync(req.body.password, user.password);
+    //console.log("validate ", validate);
     if (!validate) {
       return res.status(402).send({ message: "Invalid password" });
     }
@@ -92,25 +95,28 @@ const login = asyncHandler(async (req, res) => {
       }
     }
     if (user.isVerified === "true") {
-      const { password, ...others } = user._doc;
-      const token = user.genJWT();
-      res
-        // .cookie("token", token, {
-        //   sameSite: "none",
-        //   secure: true,
-        //   expire: new Date(Date.now() + "1d"),
-        // });
-        // res
-        //   .cookie("data", JSON.stringify(others), {
-        //     sameSite: "none",
-        //     secure: true,
-        //     expire: new Date(Date.now() + "1d"),
-        //   })
-        .status(200)
-        .json({ others, token });
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+
+      res.cookie("access_token", accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        maxAge: 15 * 60 * 1000,
+      });
+
+      res.cookie("refresh_token", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      res.cookie("csrf_token", crypto.randomUUID(), {
+        secure: true,
+        sameSite: "None",
+      }).status(200).json(user);
     }
 
-    // //------------------------------------------//
   } catch (error) {
     res.status(501).send({ message: error.message });
     console.log(error);

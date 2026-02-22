@@ -3,7 +3,8 @@ require("dotenv").config();
 module.exports = {
   MONGO_URI: process.env.MONGO_URI,
   PORT: process.env.PORT,
-  JWT_KEY: process.env.JWT_KEY,
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   NODE_ENV: process.env.NODE_ENV,
   CLOUDINARY_NAME: process.env.CLOUDINARY_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
@@ -22,5 +23,5 @@ module.exports = {
   PASSWORD: process.env.PASSWORD,
   CLIENT_URL: process.env.CLIENT_URL,
   SERVER_URL: process.env.SERVER_URL,
-  URL:process.env.URL
+  URL: process.env.URL
 };

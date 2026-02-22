@@ -14,12 +14,12 @@ const particularUser = asyncHandler(async (req, res) => {
   try {
     const users = name
       ? await User.find({
-          _id: { $ne: req.user._id },
-          username: { $regex: name, $options: "i" },
-        })
+        _id: { $ne: req.user._id },
+        username: { $regex: name, $options: "i" },
+      })
       : await User.findById(userId)
-          .populate("following", "-password")
-          .populate("followers", "-password");
+        .populate("following", "-password")
+        .populate("followers", "-password");
     // console.log("name", name, "user ", users);
     return res.status(200).json(users);
   } catch (error) {
@@ -60,6 +60,7 @@ const userById = asyncHandler(async (req, res) => {
   }
 });
 
+
 // get user by id//
 
 const allUser = asyncHandler(async (req, res) => {
@@ -83,6 +84,14 @@ const remove = asyncHandler(async (req, res) => {
   } catch (error) {
     return res.status(500).send({ error: error.message });
   }
+});
+
+const me = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  res.status(200).json(req.user);
 });
 
 // To get users for adding inside group chat//
@@ -247,4 +256,5 @@ module.exports = {
   token,
   followingUser,
   followerUser,
+  me
 };

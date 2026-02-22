@@ -10,10 +10,11 @@ const commentRoute = require("./routes/commentRoute");
 const googleRoute = require("./routes/google-auth");
 const notifcationRoute = require("./routes/notificationRoute");
 const likeRoute = require("./routes/likeRoute");
-const { passportAuth } = require("./config/jwt");
+const { passportAuth } = require("./middleware/passportAuth");
 const { createServer } = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
+const cookieParser = require("cookie-parser");
 const {
   MONGO_URI,
   URL,
@@ -38,6 +39,7 @@ mongoose
   .then(console.log("Connected to mongodb"))
   .catch((err) => {
     console.log("invalid", err);
+    process.exit(1);
   });
 
 app.use(
@@ -56,8 +58,8 @@ app.use(
   })
 );
 
+app.use(cookieParser());
 app.use(passport.initialize());
-app.use(passport.session());
 passportAuth(passport);
 
 passport.serializeUser(function (user, cb) {
@@ -124,6 +126,7 @@ io.on("connection", (socket) => {
           sender: messageRecieved.sender._id,
           content: messageRecieved.content,
         });
+        console.log("notification created for this user", user._id);
       }
       socket.in(user._id).emit("message recieved", messageRecieved);
     });
@@ -138,6 +141,7 @@ io.on("connection", (socket) => {
         const { data } = await axios.get(
           `${SERVER_URL}/api/notification/${user._id}`
         );
+        console.log("data ", data);
         if (data) {
           await Notification.findByIdAndDelete(data._id);
           // console.log("deleted");
@@ -151,8 +155,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("removeUser", function (data) {
-    users.delete(data.userId);
-    console.log("a user " + data.userId + " disconnected", users.size);
+    users.delete(data._id);
+    console.log("a user " + data._id + " disconnected", users.size);
   });
 });
 

@@ -33,6 +33,7 @@ const getNotifications = asyncHandler(async (req, res) => {
     const notifications = await Notification.find({
       user: req.user._id,
     }).populate("sender");
+
     res.status(200).json(notifications);
   } catch (error) {
     res.status(500).json({ error: error.message });

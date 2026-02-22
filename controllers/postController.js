@@ -33,8 +33,15 @@ const uploadPost = async (req, res) => {
   try {
     const fileStr = req.body.data;
     const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-      crop: "fill",
+      folder: "profile_pics",
+      transformation: [
+        {
+          height: 384,
+          crop: "scale"   // maintains aspect ratio
+        }
+      ]
     });
+    console.log("uploadResponse ", uploadResponse);
     res.status(200).json(uploadResponse);
   } catch (err) {
     console.error("err.message ", err.message);

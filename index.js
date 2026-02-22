@@ -39,6 +39,7 @@ mongoose
   .then(console.log("Connected to mongodb"))
   .catch((err) => {
     console.log("invalid", err);
+    process.exit(1);
   });
 
 app.use(
@@ -125,6 +126,7 @@ io.on("connection", (socket) => {
           sender: messageRecieved.sender._id,
           content: messageRecieved.content,
         });
+        console.log("notification created for this user", user._id);
       }
       socket.in(user._id).emit("message recieved", messageRecieved);
     });
@@ -139,6 +141,7 @@ io.on("connection", (socket) => {
         const { data } = await axios.get(
           `${SERVER_URL}/api/notification/${user._id}`
         );
+        console.log("data ", data);
         if (data) {
           await Notification.findByIdAndDelete(data._id);
           // console.log("deleted");
@@ -152,8 +155,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("removeUser", function (data) {
-    users.delete(data.userId);
-    console.log("a user " + data.userId + " disconnected", users.size);
+    users.delete(data._id);
+    console.log("a user " + data._id + " disconnected", users.size);
   });
 });
 
